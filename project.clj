@@ -1,7 +1,8 @@
 (defproject directionalsurvey "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.229"]
-                 [reagent "0.6.1"]]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
+                 [org.clojure/clojurescript "1.9.494"]
+                 [precept "0.3.0-alpha"]
+                 [reagent "0.6.0"]]
 
   :min-lein-version "2.5.3"
 
@@ -18,8 +19,8 @@
   {:dev
    {:dependencies []
 
-    :plugins      [[lein-figwheel "0.5.10"]]
-    }}
+    :plugins      [[lein-figwheel "0.5.10"]]}}
+
 
   :cljsbuild
   {:builds
@@ -41,6 +42,6 @@
                     :output-dir      "resources/public/js/min"
                     :elide-asserts   true
                     :closure-defines {goog.DEBUG false}
-                    :pretty-print    false}}
+                    :pretty-print    false}}]})
 
-    ]})
+
