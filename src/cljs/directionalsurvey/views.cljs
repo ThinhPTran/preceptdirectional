@@ -1,6 +1,7 @@
 (ns directionalsurvey.views
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]
+            [directionalsurvey.utils :as utils]
             [precept.core :refer [subscribe then]]))
 
 (defn loginform []
@@ -38,9 +39,99 @@
       (for [name names]
         ^{:key name} [:li name])]]))
 
+(defn mylocaltable []
+  (let [{:keys [localtableconfig]} @(subscribe [:mylocaltable])
+        table (atom {:table nil})]
+    [:div.col-sm-4
+     [:div
+      {:style {:min-width "310px" :max-width "800px" :margin "0 auto"}
+       :ref (fn [mydiv]
+              (if (some? mydiv)
+                (swap! table assoc :table
+                       (js/Handsontable mydiv (clj->js (assoc-in localtableconfig [:afterChange] #(do
+                                                                                                    (.log js/console "Change something!!!: " (js->clj %)))))))
+                (let [mytable (:table @table)]
+                  (if (some? mytable)
+                    (do
+                      (.destroy mytable)
+                      (swap! table assoc :table nil))))))}]]))
+
+(defn mylocalchart []
+  (let [{:keys [localtableconfig]} @(subscribe [:mylocaltable])
+        my-chart-config (utils/gen-chart-config-handson localtableconfig)
+        chart (atom {:chart nil})]
+    [:div.col-sm-4
+     [:div
+      {:style {:height "100%" :width "100%" :position "relative"}
+       :ref (fn [mydiv]
+              (if (some? mydiv)
+                (swap! chart assoc :chart (js/Highcharts.Chart. mydiv (clj->js @my-chart-config)))
+                (let [mychart (:chart @chart)]
+                  (if (some? mychart)
+                    (do
+                      (.destroy mychart)
+                      (swap! chart :chart nil))))))}]]))
+
+(defn mylocaltransacts []
+  (let [listactions ["test1" "test2"]]
+    [:div.col-sm-4
+     [:h2 "Local actions: "]
+     [:ul
+      (for [action listactions]
+        ^{:key action} [:li (str action)])]]))
+
+(defn myglobaltable []
+  (let [{:keys [globaltableconfig]} @(subscribe [:myglobaltable])
+        table (atom {:table nil})]
+    [:div.col-sm-4
+     [:div
+      {:style {:min-width "310px" :max-width "800px" :margin "0 auto"}
+       :ref (fn [mydiv]
+              (if (some? mydiv)
+                (swap! table assoc :table
+                       (js/Handsontable mydiv (clj->js (assoc-in globaltableconfig [:afterChange] #(do
+                                                                                                    (.log js/console "Change something!!!: " (js->clj %)))))))
+                (let [mytable (:table @table)]
+                  (if (some? mytable)
+                    (do
+                      (.destroy mytable)
+                      (swap! table assoc :table nil))))))}]]))
+
+(defn myglobalchart []
+  (let [{:keys [globaltableconfig]} @(subscribe [:myglobaltable])
+        my-chart-config (utils/gen-chart-config-handson globaltableconfig)
+        chart (atom {:chart nil})]
+    [:div.col-sm-4
+     [:div
+      {:style {:height "100%" :width "100%" :position "relative"}
+       :ref (fn [mydiv]
+              (if (some? mydiv)
+                (swap! chart assoc :chart (js/Highcharts.Chart. mydiv (clj->js @my-chart-config)))
+                (let [mychart (:chart @chart)]
+                  (if (some? mychart)
+                    (do
+                      (.destroy mychart)
+                      (swap! chart :chart nil))))))}]]))
+
+(defn myglobaltransacts []
+  (let [listactions ["test3" "test4"]]
+    [:div.col-sm-4
+     [:h2 "Global actions: "]
+     [:ul
+      (for [action listactions]
+        ^{:key action} [:li (str action)])]]))
+
 (defn app []
   [:div.col-sm-12.col-md-12
    [:h2 "Welcome to my Precept experiment"]
    [:div.row
     [loginform]
-    [usernames]]])
+    [usernames]]
+   [:div.row
+    [mylocaltable]
+    [mylocalchart]
+    [mylocaltransacts]]
+   [:div.row
+    [myglobaltable]
+    [myglobalchart]
+    [myglobaltransacts]]])

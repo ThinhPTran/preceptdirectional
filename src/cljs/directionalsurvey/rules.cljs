@@ -4,6 +4,7 @@
             [precept.spec.error :as err]
             [precept.util :refer [insert! insert-unconditional! retract! guid] :as util]
             [precept.rules :refer-macros [define defsub session rule]]
+            [cognitect.transit :as t]
             [directionalsurvey.facts :refer [entryuser loginuser user]]))
 
 (rule loguser
@@ -34,6 +35,18 @@
         [[_ :entry/user ?user]]
         =>
         {:entry/user ?user})
+
+(defsub :mylocaltable
+        [[_ :localtableconfig ?localtableconfig]]
+        =>
+        {:localtableconfig (let [r (t/reader :json)]
+                             (t/read r ?localtableconfig))})
+
+(defsub :myglobaltable
+        [[_ :globaltableconfig ?globaltableconfig]]
+        =>
+        {:globaltableconfig (let [r (t/reader :json)]
+                              (t/read r ?globaltableconfig))})
 
 (session app-session
          'directionalsurvey.rules

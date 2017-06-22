@@ -2,7 +2,8 @@
   (:require [reagent.core :as reagent]
             [directionalsurvey.views :as views]
             [precept.core :refer [start! then]]
-            [directionalsurvey.facts :refer [loginuser entryuser]]
+            [directionalsurvey.facts :refer [loginuser entryuser origtableconfig localtableconfig globaltableconfig]]
+            [directionalsurvey.utils :refer [init-tableconfig]]
             [directionalsurvey.rules :refer [app-session]]
             [directionalsurvey.schema :refer [db-schema]]))
 
@@ -18,7 +19,12 @@
   (reagent/render [views/app]
                   (.getElementById js/document "app")))
 
-(def facts (into (loginuser "Anonymous") (entryuser "")))
+(def facts (into []
+                 [(loginuser "Anonymous")
+                  (entryuser "")
+                  (origtableconfig (init-tableconfig))
+                  (localtableconfig (init-tableconfig))
+                  (globaltableconfig (init-tableconfig))]))
 
 (defn ^:export main []
   (dev-setup)

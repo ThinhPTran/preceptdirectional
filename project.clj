@@ -1,6 +1,7 @@
 (defproject directionalsurvey "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
                  [org.clojure/clojurescript "1.9.494"]
+                 [com.cognitect/transit-cljs "0.8.239"]
                  [precept "0.3.0-alpha"]
                  [reagent "0.6.0"]]
 
