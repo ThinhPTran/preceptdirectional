@@ -2,7 +2,11 @@
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]
             [directionalsurvey.utils :as utils]
+            [directionalsurvey.utils :refer [init-tableconfig]]
+            [directionalsurvey.serverevents :as se]
             [precept.core :refer [subscribe then]]))
+
+(declare refresh)
 
 (defn loginform []
   (let [{:keys [loginuser]} @(subscribe [:loginuser])
@@ -38,6 +42,15 @@
      [:ul
       (for [name names]
         ^{:key name} [:li name])]]))
+
+(defn refreshbutton []
+  [:div.col-sm-4.col-md-4
+   [:input
+    {:type "button"
+     :value "Please refresh!!!"
+     :on-click (fn [_]
+                 (.log js/console "Refresh!!!")
+                 (.log js/console "Chon cach khac de refresh di"))}]])
 
 (defn mylocaltable []
   (let [{:keys [localtableconfig]} @(subscribe [:mylocaltable])
@@ -126,7 +139,8 @@
    [:h2 "Welcome to my Precept experiment"]
    [:div.row
     [loginform]
-    [usernames]]
+    [usernames]
+    [refreshbutton]]
    [:div.row
     [mylocaltable]
     [mylocalchart]
@@ -135,3 +149,7 @@
     [myglobaltable]
     [myglobalchart]
     [myglobaltransacts]]])
+
+
+
+

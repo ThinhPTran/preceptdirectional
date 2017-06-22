@@ -1,4 +1,5 @@
-(ns directionalsurvey.utils)
+(ns directionalsurvey.utils
+  (:require [reagent.core :as reagent]))
 
 (defn gentabledata [len]
   (reduce #(conj %1 [%2 %2 0])
@@ -49,3 +50,6 @@
           mydata [{:name "Directional survey" :data gendata}]]
       (swap! ret assoc-in [:series] mydata))
     ret))
+
+
+

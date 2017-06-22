@@ -1,8 +1,6 @@
 (ns directionalsurvey.facts
   (:require [cognitect.transit :as t]))
 
-
-
 (defn entryuser [v] [:global :entry/user ""])
 (defn loginuser [v] [:global :loginuser v])
 (defn user [name]
