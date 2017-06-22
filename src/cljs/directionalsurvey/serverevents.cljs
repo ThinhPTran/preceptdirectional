@@ -1,5 +1,7 @@
 (ns directionalsurvey.serverevents
   (:require [goog.dom :as gdom]
+            [cognitect.transit :as t]
+            [precept.core :refer [subscribe then]]
             [taoensso.sente :as sente :refer (cb-success?)]))
 
 ; Sente setup
@@ -18,6 +20,21 @@
   (def chsk chsk)
   (def chsk-state state))
 
+(defn handle-insert [rawdata]
+  (let [[eid att val] (:data rawdata)]
+    (.log js/console (str "Server requested to insert this "))
+    (.log js/console (str "eid: " eid))
+    (.log js/console (str "att: " att))
+    (.log js/console (str "val: " val))
+    (then [eid att (let [w (t/writer :json)]
+                     (t/write w (clj->js val)))])))
+
+; handle application-specific events
+(defn- app-message-received [[msgType data]]
+  (case msgType
+    :db/insert (handle-insert data)
+    (.log js/console "Unmatched application event!!!")))
+
 ; handle websocket handshake events
 (defn- handshake-message-received [[wsid csrf-token hsdata isfirst]]
   (.log js/console "Handshake message:")
@@ -30,7 +47,7 @@
 (defn- event-handler [[id data] _]
   (case id
     :chsk/state (.log js/console "Channel state message received!!!")
-    :chsk/recv (.log js/console "App message received!!!")
+    :chsk/recv (app-message-received data)
     :chsk/handshake (handshake-message-received data)
     (.log js/console "Unmatched connection event with " (str id) " and data " (str data))))
 

@@ -32,5 +32,6 @@
 
 (defn -main [& args]
   (println "Starting server")
+  (sys/ws-message-router)
   (server/run-server app {:port 3000})
   (println "Server started. http://localhost:" 3000))

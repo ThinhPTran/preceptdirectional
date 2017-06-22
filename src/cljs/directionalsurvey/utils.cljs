@@ -8,7 +8,7 @@
 
 (defn init-tableconfig []
   {:colHeaders ["MD" "TVD" "Deviation"]
-   :data        (gentabledata 15)
+   :data        (gentabledata 3)
    :rowHeaders  false
    :contextMenu true})
 

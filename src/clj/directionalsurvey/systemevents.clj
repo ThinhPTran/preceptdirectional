@@ -1,6 +1,8 @@
 (ns directionalsurvey.systemevents
   (:require [taoensso.sente :as sente]
             [ring.util.response :refer [response resource-response]]
+            [directionalsurvey.facts :refer [origtableconfig localtableconfig globaltableconfig]]
+            [directionalsurvey.utils :as utils]
             [clojure.data :as da :refer [diff]]
             [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))
 
@@ -34,7 +36,11 @@
 (add-watch connected-uids :connected-uids connected-uids-change-handler)
 
 (defn init-handler [{:keys [wsid]}]
-  (println "Received message init from client!!!"))
+  ;; Need to send back information for client to init
+  (println "Received message init from client!!!")
+  (channel-send! wsid [:db/insert {:data (origtableconfig (utils/init-tableconfig))}])
+  (channel-send! wsid [:db/insert {:data (localtableconfig (utils/init-tableconfig))}])
+  (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}]))
 
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]

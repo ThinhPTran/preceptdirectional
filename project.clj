@@ -3,6 +3,7 @@
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/clojurescript "1.9.229"]
                  [com.cognitect/transit-cljs "0.8.239"]
+                 [com.cognitect/transit-clj "0.8.300"]
                  [http-kit "2.2.0"]
                  [ring "1.5.0"]
                  [ring/ring-json "0.3.1"]
