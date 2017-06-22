@@ -11,6 +11,7 @@
                  [cljsjs/bootstrap "3.3.6-1"]
                  [cljsjs/bootstrap-slider "7.0.1-0"]
                  [cljsjs/highcharts "5.0.4-0"]
+                 [cljsjs/handsontable "0.31.2-0"]
                  [com.taoensso/sente "1.11.0"]
                  [preceptweb "0.3.2"]
                  [reagent "0.6.0"]]

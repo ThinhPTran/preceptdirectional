@@ -1,6 +1,8 @@
 (ns directionalsurvey.views
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]
+            [cljsjs.highcharts]
+            [cljsjs.handsontable]
             [directionalsurvey.utils :as utils]
             [directionalsurvey.utils :refer [init-tableconfig]]
             [directionalsurvey.serverevents :as se]

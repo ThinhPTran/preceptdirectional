@@ -33,14 +33,17 @@
 
 (add-watch connected-uids :connected-uids connected-uids-change-handler)
 
+(defn init-handler [{:keys [wsid]}]
+  (println "Received message init from client!!!"))
+
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]
     (let [[id data :as ev] event]
-      ;(case id
-      ;  :db/init (init-handler data)
+      (case id
+        :db/init (init-handler data)
       ;  :db/action (action-processing data)
       ;  :db/changeAppState (changeState data)
-        (println "Unmatched event: " id " data: " data))))
+        (println "Unmatched event: " id " data: " data)))))
 
 (defn ws-message-router []
   (sente/start-chsk-router-loop! (ws-msg-handler) receive-channel))
