@@ -3,6 +3,8 @@
             [ring.util.response :refer [response resource-response]]
             [directionalsurvey.facts :refer [origtableconfig localtableconfig globaltableconfig]]
             [directionalsurvey.utils :as utils]
+            [datomic.api :as d :refer [db q]]
+            [directionalsurvey.db :as mydb]
             [clojure.data :as da :refer [diff]]
             [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))
 
@@ -34,6 +36,23 @@
       (println "newlogin: " newlogin))))
 
 (add-watch connected-uids :connected-uids connected-uids-change-handler)
+
+;; Messages handler
+(defn login-handler
+  "Here's where you'll add your server-side login/auth procedure (Friend, etc.).
+  In our simplified example we'll just always successfully authenticate the user
+  with whatever user-id they provided in the auth request."
+  [ring-req]
+  (let [{:keys [session params]} ring-req
+        {:keys [user-id]} params]
+    (println "Login request: %s" params)
+    (println "Session: %s" (str session))
+    (if true
+      (do
+        ;; Successful login!!!
+        ;(mydb/insertauser user-id "defaultpassword")
+
+        {:status 200 :session (assoc session :uid user-id)}))))
 
 (defn init-handler [{:keys [wsid]}]
   ;; Need to send back information for client to init

@@ -1,7 +1,10 @@
 (ns directionalsurvey.serverevents
   (:require [goog.dom :as gdom]
             [cognitect.transit :as t]
+            [clojure.string :as str]
             [precept.core :refer [subscribe then]]
+            [directionalsurvey.facts :refer [loginuser entryuser origtableconfig localtableconfig globaltableconfig]]
+            [precept.util :refer [insert! insert-unconditional! retract! guid] :as util]
             [taoensso.sente :as sente :refer (cb-success?)]))
 
 ; Sente setup
@@ -19,6 +22,37 @@
   (def send-channel! send-fn)
   (def chsk chsk)
   (def chsk-state state))
+
+; Common functions used to communicate with server
+
+
+; Login handler
+(defn loginHandler [user username]
+    (if (str/blank? username)
+      (js/alert "Please enter a user-id first")
+      (do
+        (.log js/console "Logging in with user-id %s" username)
+
+        ;;; Use any login procedure you'd like. Here we'll trigger an Ajax
+        ;;; POST request that resets our server-side session. Then we ask
+        ;;; our channel socket to reconnect, thereby picking up the new
+        ;;; session.
+
+        (sente/ajax-lite "/login"
+                         {:method :post
+                          :headers {:X-CSRF-Token (:csrf-token @chsk-state)}
+                          :params  {:user-id (str username)}}
+
+                         (fn [ajax-resp]
+                           (.log js/console "Ajax login response: %s" ajax-resp)
+                           (let [login-successful? true] ; Your logic here
+
+                             (if-not login-successful?
+                               (.log js/console "Login failed")
+                               (do
+                                 (.log js/console "Login successful")
+                                 (sente/chsk-reconnect! chsk)
+                                 (then [:transient :login/successful true])))))))))
 
 (defn handle-insert [rawdata]
   (let [[eid att val] (:data rawdata)]

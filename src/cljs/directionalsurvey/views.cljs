@@ -8,8 +8,6 @@
             [directionalsurvey.serverevents :as se]
             [precept.core :refer [subscribe then]]))
 
-(declare refresh)
-
 (defn loginform []
   (let [{:keys [loginuser]} @(subscribe [:loginuser])
         {:keys [entry/user]} @(subscribe [:loginentry])]
@@ -141,8 +139,8 @@
    [:h2 "Welcome to my Precept experiment"]
    [:div.row
     [loginform]
-    [usernames]
-    [refreshbutton]]
+    [usernames]]
+    ;[refreshbutton]]
    [:div.row
     [mylocaltable]
     [mylocalchart]

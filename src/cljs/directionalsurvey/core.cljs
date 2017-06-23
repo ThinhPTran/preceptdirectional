@@ -18,11 +18,7 @@
     (println "dev mode")))
 
 (def facts (into []
-                 [(loginuser "Anonymous")
-                  (entryuser "")
-                  (origtableconfig (init-tableconfig))
-                  (localtableconfig (init-tableconfig))
-                  (globaltableconfig (init-tableconfig))]))
+                 [(entryuser "")]))
 
 (defn startsession []
   (start! {:session app-session :facts facts}))

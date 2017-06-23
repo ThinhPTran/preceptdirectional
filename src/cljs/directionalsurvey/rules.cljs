@@ -2,23 +2,27 @@
   (:require-macros [precept.dsl :refer [<- entity entities]])
   (:require [precept.accumulators :as acc]
             [precept.spec.error :as err]
+            [directionalsurvey.serverevents :as se]
             [precept.util :refer [insert! insert-unconditional! retract! guid] :as util]
             [precept.rules :refer-macros [define defsub session rule]]
             [cognitect.transit :as t]
             [directionalsurvey.facts :refer [entryuser loginuser user]]))
 
-(rule loguser
-      [[_ :loginuser ?loginuser]]
+(rule loginsucessful
+      [[_ :login/successful true]]
+      [?user <- [_ :entry/user ?username]]
       =>
-      (insert-unconditional! (user ?loginuser)))
+      (retract! ?user))
+      ;(.log js/console "login sucessful action!!!")
+      ;(.log js/console "username: " ?username))
 
 (rule loginaction
       [[_ :button/pressed :login]]
       [?user <- [_ :entry/user ?username]]
       =>
-      (.log js/console "Rule works")
-      (retract! ?user)
-      (insert-unconditional! (loginuser ?username)))
+      (.log js/console "loginaction")
+      ;(retract! ?user)
+      (se/loginHandler ?user ?username))
 
 (defsub :allusers
         [?eids <- (acc/by-fact-id :e) :from [:user/name]]

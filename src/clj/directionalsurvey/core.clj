@@ -6,14 +6,15 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             [org.httpkit.server :refer [run-server]]
-            [directionalsurvey.systemevents :as sys]))
+            [directionalsurvey.systemevents :as sys]
+            [directionalsurvey.db :as db]))
 
 (defroutes app-routes
   ;; this here to serve web content, if any
   (GET  "/" [] (resource-response "public/index.html"))
   (GET  "/chsk" req (sys/ring-ws-handoff req))
   (POST "/chsk" req (sys/ring-ws-post req))
-  ;(POST "/login" req (sys/login-handler req))
+  (POST "/login" req (sys/login-handler req))
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))
 
@@ -32,6 +33,7 @@
 
 (defn -main [& args]
   (println "Starting server")
+  (db/initdb)
   (sys/ws-message-router)
   (server/run-server app {:port 3000})
   (println "Server started. http://localhost:" 3000))

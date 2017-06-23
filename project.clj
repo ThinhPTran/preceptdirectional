@@ -1,21 +1,23 @@
 (defproject directionalsurvey "0.1.0-SNAPSHOT"
   :main directionalsurvey.core
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
-                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/clojurescript "1.9.229" :exclusions [org.clojure/tools.reader]]
                  [com.cognitect/transit-cljs "0.8.239"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [http-kit "2.2.0"]
-                 [ring "1.5.0"]
+                 [ring "1.6.0" :exclusions [commons-codec]]
                  [ring/ring-json "0.3.1"]
-                 [cheshire "5.7.1"]
                  [compojure "1.6.0"]
                  [cljsjs/bootstrap "3.3.6-1"]
                  [cljsjs/bootstrap-slider "7.0.1-0"]
                  [cljsjs/highcharts "5.0.4-0"]
                  [cljsjs/handsontable "0.31.2-0"]
-                 [com.taoensso/sente "1.11.0"]
+                 [com.taoensso/sente "1.11.0" :exclusions [org.clojure/core.async
+                                                           org.clojure/tools.reader]]
                  [preceptweb "0.3.2"]
-                 [reagent "0.6.0"]]
+                 [reagent "0.6.0"]
+                 [com.datomic/datomic-free "0.9.5390" :exclusions [commons-codec
+                                                                   com.google.guava/guava]]]
 
   :min-lein-version "2.5.3"
 
