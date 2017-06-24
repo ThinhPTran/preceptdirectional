@@ -6,6 +6,7 @@
             [directionalsurvey.utils :as utils]
             [directionalsurvey.utils :refer [init-tableconfig]]
             [directionalsurvey.serverevents :as se]
+            [cognitect.transit :as t]
             [precept.core :refer [subscribe then]]))
 
 (defn loginform []
@@ -31,7 +32,8 @@
 
 (defn usernames []
   (let [{:keys [allusers]} @(subscribe [:allusers])
-        names (map #(:user/name %) allusers)]
+        names (map #(let [r (t/reader :json)]
+                      (t/read r (:user/name %))) allusers)]
     [:div.col-sm-2.col-md-2
      [:div "User names: "]
      [:input

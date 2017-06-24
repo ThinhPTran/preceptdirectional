@@ -6,7 +6,8 @@
             [datomic.api :as d :refer [db q]]
             [directionalsurvey.db :as mydb]
             [clojure.data :as da :refer [diff]]
-            [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))
+            [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]
+            [directionalsurvey.db :as db]))
 
 (let [;; Serializtion format, must use same val for client + server:
       packer :edn ; Default packer, a good choice in most cases
@@ -29,11 +30,17 @@
   (when (not= old new)
     (let [oldsk (:any old)
           newsk (:any new)
-          newlogin (nth (diff oldsk newsk) 1)]
+          newlogin (nth (diff oldsk newsk) 1)
+          logininf (db/getusers)]
       (println "Connected uids change: %s" new)
       (println "oldsk: " oldsk)
       (println "newsk: " newsk)
-      (println "newlogin: " newlogin))))
+      (println "newlogin: " newlogin)
+      (println (str "logininf: " logininf))
+      (doseq [wsid newsk]
+        (doseq [fact logininf]
+          (println (str "fact: " fact))
+          (channel-send! wsid [:db/insert {:data fact}]))))))
 
 (add-watch connected-uids :connected-uids connected-uids-change-handler)
 
@@ -50,8 +57,7 @@
     (if true
       (do
         ;; Successful login!!!
-        ;(mydb/insertauser user-id "defaultpassword")
-
+        (mydb/insertauser user-id "defaultpassword")
         {:status 200 :session (assoc session :uid user-id)}))))
 
 (defn init-handler [{:keys [wsid]}]
@@ -59,7 +65,13 @@
   (println "Received message init from client!!!")
   (channel-send! wsid [:db/insert {:data (origtableconfig (utils/init-tableconfig))}])
   (channel-send! wsid [:db/insert {:data (localtableconfig (utils/init-tableconfig))}])
-  (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}]))
+  (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}])
+  ;; Send login information
+  (let [logininf (db/getusers)]
+    (doseq [wsid @connected-uids]
+      (doseq [fact logininf]
+        (println (str "fact: " fact))
+        (channel-send! wsid [:db/insert {:data fact}])))))
 
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]

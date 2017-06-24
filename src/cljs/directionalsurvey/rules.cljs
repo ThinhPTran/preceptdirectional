@@ -12,6 +12,7 @@
       [[_ :login/successful true]]
       [?user <- [_ :entry/user ?username]]
       =>
+      (insert-unconditional! [:global :loginuser ?username])
       (retract! ?user))
       ;(.log js/console "login sucessful action!!!")
       ;(.log js/console "username: " ?username))
