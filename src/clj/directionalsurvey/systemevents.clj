@@ -39,7 +39,7 @@
       (println (str "logininf: " logininf))
       (doseq [wsid newsk]
         (doseq [fact logininf]
-          (println (str "fact: " fact))
+          ;(println (str "fact: " fact))
           (channel-send! wsid [:db/insert {:data fact}]))))))
 
 (add-watch connected-uids :connected-uids connected-uids-change-handler)
@@ -68,17 +68,20 @@
   (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}])
   ;; Send login information
   (let [logininf (db/getusers)]
-    (doseq [wsid @connected-uids]
-      (doseq [fact logininf]
-        (println (str "fact: " fact))
-        (channel-send! wsid [:db/insert {:data fact}])))))
+    (doseq [fact logininf]
+      (println (str "fact: " fact))
+      (channel-send! wsid [:db/insert {:data fact}]))))
 
 (defn settablevalue-handler [{:keys [user row col val]}]
-  (println "Receive message settablevalue from client!!!")
-  (println "user: " user)
-  (println "row: " row)
-  (println "col: " col)
-  (println "val: " val))
+  (let [listactions (mydb/insertanaction {:user user
+                                          :row row
+                                          :col col
+                                          :val val})]
+    (println (str "list actions: " listactions))
+    (doseq [wsid (:any @connected-uids)]
+      (println (str "wsid: " wsid))
+      (doseq [fact listactions]
+        (channel-send! wsid [:db/insert {:data fact}])))))
 
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]

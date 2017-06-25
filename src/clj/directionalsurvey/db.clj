@@ -5,6 +5,8 @@
 (d/create-database uri)
 (def db-connection (d/connect uri))
 
+(defn now [] (new java.util.Date))
+
 (defn insertauser [name password]
   (let [rawexisted (q '[:find [(pull ?e [:db/id :user/name :user/password]) ...]
                         :where [?e :user/name]]
@@ -21,6 +23,32 @@
                        (d/db db-connection))]
         (println (str "users: " rawdata))))))
 
+(defn insertanaction [{:keys [user row col val]}]
+  ;; Query for username
+  (let [rawexisted (q '[:find [(pull ?e [:db/id :user/name :user/password]) ...]
+                        :where [?e :user/name]]
+                      (d/db db-connection))
+        userentity (first (filterv #(= user (:user/name %)) rawexisted))]
+    (println (str "userentity: " userentity))
+    (let [tmp @(d/transact db-connection
+                           [{:db/id #db/id[:db.part/user]
+                             :action/user (:db/id userentity)
+                             :action/row row
+                             :action/col col
+                             :action/val (double val)
+                             :action/instant (now)}])
+          rawdata (q '[:find [(pull ?e [:db/id :action/user :action/row :action/col :action/val :action/instant]) ...]
+                       :where [?e :action/val]]
+                     (d/db db-connection))
+          outdata (mapv (fn [in] [(:db/id in)
+                                  :action/value
+                                  {:action/user (:action/user in)
+                                   :action/row (:action/row in)
+                                   :action/col (:action/col in)
+                                   :action/val (:action/val in)
+                                   :action/instant (:action/instant in)}]) rawdata)]
+      outdata)))
+
 (defn getusers []
   (let [rawdata (q '[:find [(pull ?e [:db/id :user/name :user/password]) ...]
                      :where [?e :user/name]]
@@ -29,6 +57,22 @@
                                 :user/name
                                 (:user/name in)])
                       rawdata)]
+    outdata))
+
+(defn getactions []
+  (let [rawdata (q '[:find [(pull ?e [:db/id :action/user :action/row :action/col :action/val :action/instant]) ...]
+                     :where [?e :action/val]]
+                   (d/db db-connection))
+        rawdata (q '[:find [(pull ?e [:db/id :action/user :action/row :action/col :action/val :action/instant]) ...]
+                     :where [?e :action/val]]
+                   (d/db db-connection))
+        outdata (mapv (fn [in] [(:db/id in)
+                                :action/value
+                                {:action/user (:action/user in)
+                                 :action/row (:action/row in)
+                                 :action/col (:action/col in)
+                                 :action/val (:action/val in)
+                                 :action/instant (:action/instant in)}]) rawdata)]
     outdata))
 
 (defn initdb []
@@ -60,13 +104,13 @@
                                     :db/doc "Row Index"
                                     :db.install/_attribute :db.part/db}
                                    {:db/id #db/id[:db.part/db]
-                                    :db/ident :action/column
+                                    :db/ident :action/col
                                     :db/valueType :db.type/long
                                     :db/cardinality :db.cardinality/one
                                     :db/doc "Column Index"
                                     :db.install/_attribute :db.part/db}
                                    {:db/id #db/id[:db.part/db]
-                                    :db/ident :action/newval
+                                    :db/ident :action/val
                                     :db/valueType :db.type/double
                                     :db/cardinality :db.cardinality/one
                                     :db/doc "New value"

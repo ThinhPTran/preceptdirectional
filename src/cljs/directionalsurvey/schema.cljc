@@ -4,18 +4,8 @@
             [precept.state :as state]))
 
 (defn gen-db-schema []
-  [(attribute :action/act
-              :db.type/string)
-   (attribute :action/user
-              :db.type/string)
-   (attribute :action/row
-              :db.type/long)
-   (attribute :action/col
-              :db.type/long)
-   (attribute :action/val
-              :db.type/double)
-   (attribute :action/inst
-              :db.type/instant)])
+  [(attribute :action/value
+              :db.type/string)])
 
 (defn gen-client-schema []
   [(attribute :action/edit
