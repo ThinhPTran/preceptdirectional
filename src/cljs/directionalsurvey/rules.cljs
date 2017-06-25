@@ -8,6 +8,17 @@
             [cognitect.transit :as t]
             [directionalsurvey.facts :refer [entryuser loginuser user]]))
 
+
+
+(rule setdatabyuser
+      [[_ :loginuser ?username]]
+      [[_ :setdata ?changeDatas]]
+      =>
+      ;(.log js/console "setdata: ")
+      ;(.log js/console "user: " ?username)
+      ;(.log js/console (str "changeDatas: " ?changeDatas))
+      (se/set-action ?username ?changeDatas))
+
 (rule loginsucessful
       [[_ :login/successful true]]
       [?user <- [_ :entry/user ?username]]

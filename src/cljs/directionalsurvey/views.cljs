@@ -63,8 +63,8 @@
        :ref (fn [mydiv]
               (if (some? mydiv)
                 (swap! table assoc :table
-                       (js/Handsontable mydiv (clj->js (assoc-in localtableconfig [:afterChange] #(do
-                                                                                                    (.log js/console "Change something!!!: " (js->clj %)))))))
+                       (js/Handsontable mydiv (clj->js (assoc-in localtableconfig [:afterChange] #(let [changeDatas (js->clj %)]
+                                                                                                    (then [:transient :setdata changeDatas]))))))
                 (let [mytable (:table @table)]
                   (if (some? mytable)
                     (do
@@ -104,8 +104,8 @@
        :ref (fn [mydiv]
               (if (some? mydiv)
                 (swap! table assoc :table
-                       (js/Handsontable mydiv (clj->js (assoc-in globaltableconfig [:afterChange] #(do
-                                                                                                    (.log js/console "Change something!!!: " (js->clj %)))))))
+                       (js/Handsontable mydiv (clj->js (assoc-in globaltableconfig [:afterChange] #(let [changeDatas (js->clj %)]
+                                                                                                     (then [:transient :setdata changeDatas]))))))
                 (let [mytable (:table @table)]
                   (if (some? mytable)
                     (do

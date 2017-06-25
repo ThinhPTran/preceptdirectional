@@ -25,6 +25,18 @@
 
 ; Common functions used to communicate with server
 
+; Handle user's changing table
+(defn set-action [username changeDatas]
+  (let [changeData (first changeDatas)
+        row (get changeData 0)
+        col (get changeData 1)
+        val (js/parseFloat (nth changeData 3))]
+    (.log js/console (str "user: " username))
+    (.log js/console (str "set-action: " changeData))
+    (send-channel! [:user/set-table-value {:user username
+                                           :row row
+                                           :col col
+                                           :val (js/parseFloat (nth changeData 3))}])))
 
 ; Login handler
 (defn loginHandler [user username]

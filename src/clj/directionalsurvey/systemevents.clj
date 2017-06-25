@@ -73,13 +73,19 @@
         (println (str "fact: " fact))
         (channel-send! wsid [:db/insert {:data fact}])))))
 
+(defn settablevalue-handler [{:keys [user row col val]}]
+  (println "Receive message settablevalue from client!!!")
+  (println "user: " user)
+  (println "row: " row)
+  (println "col: " col)
+  (println "val: " val))
+
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]
     (let [[id data :as ev] event]
       (case id
         :db/init (init-handler data)
-      ;  :db/action (action-processing data)
-      ;  :db/changeAppState (changeState data)
+        :user/set-table-value (settablevalue-handler data)
         (println "Unmatched event: " id " data: " data)))))
 
 (defn ws-message-router []
