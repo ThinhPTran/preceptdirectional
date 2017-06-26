@@ -101,8 +101,8 @@
                                                       :col (:col in)
                                                       :val (:val in)
                                                       :instant (:instant in)}) tmpallactions))
-        localactions (filter #(= loginuser (:user %)) allactions)
-        listactions []]
+        localactions (filter #(= loginuser (:user %)) allactions)]
+    (then [:global :localactions localactions])
     [:div.col-sm-4
      [:h2 "Local actions: "]
      ;[:div (str "loginuser: " loginuser)]
@@ -158,16 +158,29 @@
                                                       :row (:row in)
                                                       :col (:col in)
                                                       :val (:val in)
-                                                      :instant (:instant in)}) tmpallactions))
-        listactions []]
+                                                      :instant (:instant in)}) tmpallactions))]
+    (then [:global :globalactions allactions])
     [:div.col-sm-4
      [:h2 "Global actions: "]
-     ;[:div (str "allusers: " allusers)]
+     ;[:div (str "allusers: " rawallusers)]
      ;[:div (str "rawallactions: " allactions)]
      [:div
        [:ul
         (for [action allactions]
           ^{:key action} [:li (str "User " (:user action) " changed at " (:instant action))])]]]))
+
+(defn myslider []
+  (let [{:keys [globalactions]} @(subscribe [:myslider])
+        totalactions (count globalactions)
+        currentpick (count globalactions)]
+    [:div.col-sm-12
+     [:input#myrange {:type "range"
+                      :min 0
+                      :max totalactions
+                      :value currentpick
+                      :step 1}]
+     [:div (str "Username: ")]
+     [:div (str "at: ")]]))
 
 (defn app []
   [:div.col-sm-12.col-md-12
@@ -180,6 +193,8 @@
     [mylocaltable]
     [mylocalchart]
     [mylocaltransacts]]
+   [:div.row
+    [myslider]]
    [:div.row
     [myglobaltable]
     [myglobalchart]

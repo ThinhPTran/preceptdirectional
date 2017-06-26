@@ -6,10 +6,35 @@
             [precept.util :refer [insert! insert-unconditional! retract! guid] :as util]
             [precept.rules :refer-macros [define defsub session rule]]
             [cognitect.transit :as t]
+            [directionalsurvey.utils :as dsutils]
             [directionalsurvey.facts :refer [entryuser loginuser user]]))
 
+(rule globalactionschanged
+      {:group :action}
+      [[_ :globalactions ?globalactions]]
+      [[_ :origtableconfig ?origtableconfig]]
+      =>
+      ;(.log js/console (str "globalactions: " ?globalactions))
+      ;(.log js/console (str "origtableconfig: " ?origtableconfig))
+      (let [origtableconfig (let [r (t/reader :json)]
+                              (t/read r ?origtableconfig))
+            globalactions ?globalactions]
+        (dsutils/handle-global-table origtableconfig globalactions)))
+
+(rule localactionschanged
+      {:group :action}
+      [[_ :localactions ?localactions]]
+      [[_ :origtableconfig ?origtableconfig]]
+      =>
+      ;(.log js/console (str "localactions: " ?localactions))
+      ;(.log js/console (str "origtableconfig: " ?origtableconfig))
+      (let [origtableconfig (let [r (t/reader :json)]
+                              (t/read r ?origtableconfig))
+            localactions ?localactions]
+        (dsutils/handle-local-table origtableconfig localactions)))
 
 (rule setdatabyuser
+      {:group :action}
       [[_ :loginuser ?username]]
       [[_ :setdata ?changeDatas]]
       =>
@@ -19,6 +44,7 @@
       (se/set-action ?username ?changeDatas))
 
 (rule loginsucessful
+      {:group :action}
       [[_ :login/successful true]]
       [?user <- [_ :entry/user ?username]]
       =>
@@ -28,6 +54,7 @@
       ;(.log js/console "username: " ?username))
 
 (rule loginaction
+      {:group :action}
       [[_ :button/pressed :login]]
       [?user <- [_ :entry/user ?username]]
       =>
@@ -68,6 +95,11 @@
         [(<- ?allactions (entities ?eids))]
         =>
         {:rawallactions ?allactions})
+
+(defsub :myslider
+        [[_ :globalactions ?globalactions]]
+        =>
+        {:globalactions ?globalactions})
 
 (session app-session
          'directionalsurvey.rules
