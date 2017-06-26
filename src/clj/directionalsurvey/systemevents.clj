@@ -36,7 +36,7 @@
       (println "oldsk: " oldsk)
       (println "newsk: " newsk)
       (println "newlogin: " newlogin)
-      (println (str "logininf: " logininf))
+      ;(println (str "logininf: " logininf))
       (doseq [wsid newsk]
         (doseq [fact logininf]
           ;(println (str "fact: " fact))
@@ -80,7 +80,7 @@
                                           :row row
                                           :col col
                                           :val val})]
-    (println (str "list actions: " listactions))
+    ;(println (str "list actions: " listactions))
     (doseq [wsid (:any @connected-uids)]
       (println (str "wsid: " wsid))
       (doseq [fact listactions]
