@@ -9,7 +9,6 @@
             [directionalsurvey.facts :refer [entryuser loginuser user]]))
 
 
-
 (rule setdatabyuser
       [[_ :loginuser ?username]]
       [[_ :setdata ?changeDatas]]
@@ -40,7 +39,7 @@
         [?eids <- (acc/by-fact-id :e) :from [:user/name]]
         [(<- ?allusers (entities ?eids))]
         =>
-        {:allusers ?allusers})
+        {:rawallusers ?allusers})
 
 (defsub :loginuser
         [[_ :loginuser ?loginuser]]
@@ -63,6 +62,12 @@
         =>
         {:globaltableconfig (let [r (t/reader :json)]
                               (t/read r ?globaltableconfig))})
+
+(defsub :myglobaltransacts
+        [?eids <- (acc/by-fact-id :e) :from [:action/value]]
+        [(<- ?allactions (entities ?eids))]
+        =>
+        {:rawallactions ?allactions})
 
 (session app-session
          'directionalsurvey.rules

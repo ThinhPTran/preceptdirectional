@@ -67,10 +67,13 @@
   (channel-send! wsid [:db/insert {:data (localtableconfig (utils/init-tableconfig))}])
   (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}])
   ;; Send login information
-  (let [logininf (db/getusers)]
+  (let [logininf (db/getusers)
+        listactions (db/getactions)]
     (doseq [fact logininf]
-      (println (str "fact: " fact))
-      (channel-send! wsid [:db/insert {:data fact}]))))
+      ;(println (str "fact: " fact))
+      (channel-send! wsid [:db/insert {:data fact}]))
+    (doseq [action listactions]
+      (channel-send! wsid [:db/insert {:data action}]))))
 
 (defn settablevalue-handler [{:keys [user row col val]}]
   (let [listactions (mydb/insertanaction {:user user

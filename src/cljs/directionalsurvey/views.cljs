@@ -31,11 +31,12 @@
      [:div (str "user name: " loginuser)]]))
 
 (defn usernames []
-  (let [{:keys [allusers]} @(subscribe [:allusers])
+  (let [{:keys [rawallusers]} @(subscribe [:allusers])
         names (map #(let [r (t/reader :json)]
-                      (t/read r (:user/name %))) allusers)]
+                      (t/read r (:user/name %))) rawallusers)]
     [:div.col-sm-2.col-md-2
      [:div "User names: "]
+     ;[:div (str "allusers: " allusers)]
      [:input
       {:type "button"
        :value "Get usernames"
@@ -88,12 +89,30 @@
                       (swap! chart :chart nil))))))}]]))
 
 (defn mylocaltransacts []
-  (let [listactions ["test1" "test2"]]
+  (let [{:keys [rawallusers]} @(subscribe [:allusers])
+        {:keys [rawallactions]} @(subscribe [:myglobaltransacts])
+        {:keys [loginuser]} @(subscribe [:loginuser])
+        allusers (reduce #(assoc %1 (:db/id %2) (let [r (t/reader :json)]
+                                                  (t/read r (:user/name %2)))) {} rawallusers)
+        tmpallactions (map #(let [r (t/reader :json)]
+                              (t/read r (:action/value %))) rawallactions)
+        allactions (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
+                                                      :row (:row in)
+                                                      :col (:col in)
+                                                      :val (:val in)
+                                                      :instant (:instant in)}) tmpallactions))
+        localactions (filter #(= loginuser (:user %)) allactions)
+        listactions []]
     [:div.col-sm-4
      [:h2 "Local actions: "]
-     [:ul
-      (for [action listactions]
-        ^{:key action} [:li (str action)])]]))
+     ;[:div (str "loginuser: " loginuser)]
+     ;[:div (str "allusers: " allusers)]
+     ;[:div (str "allactions: " allactions)]
+     ;[:div (str "localactions: " localactions)]
+     [:div
+      [:ul
+       (for [action localactions]
+         ^{:key action} [:li (str "User " (:user action) " changed at " (:instant action))])]]]))
 
 (defn myglobaltable []
   (let [{:keys [globaltableconfig]} @(subscribe [:myglobaltable])
@@ -129,12 +148,26 @@
                       (swap! chart :chart nil))))))}]]))
 
 (defn myglobaltransacts []
-  (let [listactions ["test3" "test4"]]
+  (let [{:keys [rawallusers]} @(subscribe [:allusers])
+        {:keys [rawallactions]} @(subscribe [:myglobaltransacts])
+        allusers (reduce #(assoc %1 (:db/id %2) (let [r (t/reader :json)]
+                                                  (t/read r (:user/name %2)))) {} rawallusers)
+        tmpallactions (map #(let [r (t/reader :json)]
+                              (t/read r (:action/value %))) rawallactions)
+        allactions (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
+                                                      :row (:row in)
+                                                      :col (:col in)
+                                                      :val (:val in)
+                                                      :instant (:instant in)}) tmpallactions))
+        listactions []]
     [:div.col-sm-4
      [:h2 "Global actions: "]
-     [:ul
-      (for [action listactions]
-        ^{:key action} [:li (str action)])]]))
+     ;[:div (str "allusers: " allusers)]
+     ;[:div (str "rawallactions: " allactions)]
+     [:div
+       [:ul
+        (for [action allactions]
+          ^{:key action} [:li (str "User " (:user action) " changed at " (:instant action))])]]]))
 
 (defn app []
   [:div.col-sm-12.col-md-12

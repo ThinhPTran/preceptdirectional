@@ -42,11 +42,11 @@
                      (d/db db-connection))
           outdata (mapv (fn [in] [(:db/id in)
                                   :action/value
-                                  {:action/user (:action/user in)
-                                   :action/row (:action/row in)
-                                   :action/col (:action/col in)
-                                   :action/val (:action/val in)
-                                   :action/instant (:action/instant in)}]) rawdata)]
+                                  {:user (:db/id (:action/user in))
+                                   :row (:action/row in)
+                                   :col (:action/col in)
+                                   :val (:action/val in)
+                                   :instant (:action/instant in)}]) rawdata)]
       outdata)))
 
 (defn getusers []
@@ -68,11 +68,11 @@
                    (d/db db-connection))
         outdata (mapv (fn [in] [(:db/id in)
                                 :action/value
-                                {:action/user (:action/user in)
-                                 :action/row (:action/row in)
-                                 :action/col (:action/col in)
-                                 :action/val (:action/val in)
-                                 :action/instant (:action/instant in)}]) rawdata)]
+                                {:user (:db/id (:action/user in))
+                                 :row (:action/row in)
+                                 :col (:action/col in)
+                                 :val (:action/val in)
+                                 :instant (:action/instant in)}]) rawdata)]
     outdata))
 
 (defn initdb []

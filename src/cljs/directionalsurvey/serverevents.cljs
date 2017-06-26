@@ -73,7 +73,7 @@
     (.log js/console (str "att: " att))
     (.log js/console (str "val: " val))
     (then [eid att (let [w (t/writer :json)]
-                     (t/write w (clj->js val)))])))
+                     (t/write w val))])))
 
 ; handle application-specific events
 (defn- app-message-received [[msgType data]]
