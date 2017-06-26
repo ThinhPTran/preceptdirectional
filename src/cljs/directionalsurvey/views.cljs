@@ -90,18 +90,19 @@
 
 (defn mylocaltransacts []
   (let [{:keys [rawallusers]} @(subscribe [:allusers])
-        {:keys [rawallactions]} @(subscribe [:myglobaltransacts])
+        {:keys [rawallactions currentpick]} @(subscribe [:myglobaltransacts])
         {:keys [loginuser]} @(subscribe [:loginuser])
         allusers (reduce #(assoc %1 (:db/id %2) (let [r (t/reader :json)]
                                                   (t/read r (:user/name %2)))) {} rawallusers)
         tmpallactions (map #(let [r (t/reader :json)]
                               (t/read r (:action/value %))) rawallactions)
-        allactions (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
-                                                      :row (:row in)
-                                                      :col (:col in)
-                                                      :val (:val in)
-                                                      :instant (:instant in)}) tmpallactions))
-        localactions (filter #(= loginuser (:user %)) allactions)]
+        allactions (vec (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
+                                                           :row (:row in)
+                                                           :col (:col in)
+                                                           :val (:val in)
+                                                           :instant (:instant in)}) tmpallactions)))
+        pickactions (if (> (count allactions) 0) (subvec allactions 0 currentpick) allactions)
+        localactions (filterv #(= loginuser (:user %)) pickactions)]
     (then [:global :localactions localactions])
     [:div.col-sm-4
      [:h2 "Local actions: "]
@@ -149,36 +150,44 @@
 
 (defn myglobaltransacts []
   (let [{:keys [rawallusers]} @(subscribe [:allusers])
-        {:keys [rawallactions]} @(subscribe [:myglobaltransacts])
+        {:keys [rawallactions currentpick]} @(subscribe [:myglobaltransacts])
         allusers (reduce #(assoc %1 (:db/id %2) (let [r (t/reader :json)]
                                                   (t/read r (:user/name %2)))) {} rawallusers)
         tmpallactions (map #(let [r (t/reader :json)]
                               (t/read r (:action/value %))) rawallactions)
-        allactions (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
-                                                      :row (:row in)
-                                                      :col (:col in)
-                                                      :val (:val in)
-                                                      :instant (:instant in)}) tmpallactions))]
+        allactions (vec (sort-by :instant < (map (fn [in] {:user (get allusers (:user in))
+                                                           :row (:row in)
+                                                           :col (:col in)
+                                                           :val (:val in)
+                                                           :instant (:instant in)}) tmpallactions)))
+        pickactions (if (> (count allactions) 0) (subvec allactions 0 currentpick) allactions)]
+        ;pickactions (if (some? allactions) (subvec allactions 0 currentpick) [])]
     (then [:global :globalactions allactions])
+    (then [:global :pickactions pickactions])
+    ;(then [:global :totalactions (count allactions)])
+    ;(then [:global :currentpick (count allactions)])
     [:div.col-sm-4
      [:h2 "Global actions: "]
      ;[:div (str "allusers: " rawallusers)]
      ;[:div (str "rawallactions: " allactions)]
      [:div
        [:ul
-        (for [action allactions]
+        (for [action pickactions]
           ^{:key action} [:li (str "User " (:user action) " changed at " (:instant action))])]]]))
 
 (defn myslider []
-  (let [{:keys [globalactions]} @(subscribe [:myslider])
-        totalactions (count globalactions)
-        currentpick (count globalactions)]
+  (let [{:keys [globalactions totalactions currentpick]} @(subscribe [:myslider])]
     [:div.col-sm-12
      [:input#myrange {:type "range"
                       :min 0
                       :max totalactions
                       :value currentpick
-                      :step 1}]
+                      :step 1
+                      :onChange (fn [_]
+                                  (let
+                                    [v (.-value (gdom/getElement "myrange"))]
+                                    ;(.log js/console (str "v: " v))
+                                    (then [:global :currentpick (js/parseInt v)])))}]
      [:div (str "Username: ")]
      [:div (str "at: ")]]))
 

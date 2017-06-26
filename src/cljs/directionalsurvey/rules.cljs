@@ -13,25 +13,38 @@
       {:group :action}
       [[_ :globalactions ?globalactions]]
       [[_ :origtableconfig ?origtableconfig]]
+      [[_ :currentpick ?currentpick]]
+      [[_ :pickactions ?pickactions]]
       =>
       ;(.log js/console (str "globalactions: " ?globalactions))
       ;(.log js/console (str "origtableconfig: " ?origtableconfig))
+      ;(.log js/console (str "currentpick: " ?currentpick))
       (let [origtableconfig (let [r (t/reader :json)]
                               (t/read r ?origtableconfig))
-            globalactions ?globalactions]
-        (dsutils/handle-global-table origtableconfig globalactions)))
+            globalactions ?globalactions
+            pickactions ?pickactions]
+        (dsutils/handle-global-table origtableconfig (seq pickactions))))
 
 (rule localactionschanged
       {:group :action}
       [[_ :localactions ?localactions]]
       [[_ :origtableconfig ?origtableconfig]]
+      [[_ :currentpick ?currentpick]]
       =>
       ;(.log js/console (str "localactions: " ?localactions))
       ;(.log js/console (str "origtableconfig: " ?origtableconfig))
       (let [origtableconfig (let [r (t/reader :json)]
                               (t/read r ?origtableconfig))
             localactions ?localactions]
-        (dsutils/handle-local-table origtableconfig localactions)))
+        (dsutils/handle-local-table origtableconfig (seq localactions))))
+
+(rule numberactionchanged
+      {:group :action}
+      [?Nactions <- (acc/count) :from [:action/value]]
+      =>
+      ;(.log js/console (str "Naction: " ?Nactions))
+      (insert-unconditional! [:global :totalactions ?Nactions])
+      (insert-unconditional! [:global :currentpick ?Nactions]))
 
 (rule setdatabyuser
       {:group :action}
@@ -93,13 +106,19 @@
 (defsub :myglobaltransacts
         [?eids <- (acc/by-fact-id :e) :from [:action/value]]
         [(<- ?allactions (entities ?eids))]
+        [[_ :currentpick ?currentpick]]
         =>
-        {:rawallactions ?allactions})
+        {:rawallactions ?allactions
+         :currentpick ?currentpick})
 
 (defsub :myslider
         [[_ :globalactions ?globalactions]]
+        [[_ :totalactions ?totalactions]]
+        [[_ :currentpick ?currentpick]]
         =>
-        {:globalactions ?globalactions})
+        {:globalactions ?globalactions
+         :totalactions ?totalactions
+         :currentpick ?currentpick})
 
 (session app-session
          'directionalsurvey.rules
