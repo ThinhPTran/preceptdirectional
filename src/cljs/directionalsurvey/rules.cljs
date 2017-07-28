@@ -75,6 +75,14 @@
       ;(retract! ?user)
       (se/loginHandler ?user ?username))
 
+;; User change unit
+(rule command-server-change-unit
+      {:group :action}
+      [[_ :command-server-change-unit ?command-server-change-unit]]
+      =>
+      (js/console.log (str "command server to change unit: " ?command-server-change-unit))
+      (se/command-server-change-unit ?command-server-change-unit))
+
 (defsub :allusers
         [?eids <- (acc/by-fact-id :e) :from [:user/name]]
         [(<- ?allusers (entities ?eids))]
@@ -119,6 +127,15 @@
         {:globalactions ?globalactions
          :totalactions ?totalactions
          :currentpick ?currentpick})
+
+(defsub :unitoption
+        [[_ :unit-item-map ?unit-item-map]]
+        [[_ :selected-unit-item ?selected-unit-item]]
+        =>
+        {:unit-item-map (let [r (t/reader :json)]
+                          (t/read r ?unit-item-map))
+         :selected-unit-item (let [r (t/reader :json)]
+                               (t/read r ?selected-unit-item))})
 
 (session app-session
          'directionalsurvey.rules

@@ -38,6 +38,10 @@
                                            :col col
                                            :val (js/parseFloat (nth changeData 3))}])))
 
+;;send event to change unit
+(defn command-server-change-unit [unit]
+  (send-channel! [:unit/change {:unit unit}]))
+
 ; Login handler
 (defn loginHandler [user username]
     (if (str/blank? username)

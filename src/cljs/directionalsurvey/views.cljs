@@ -183,7 +183,7 @@
                       :max totalactions
                       :value currentpick
                       :step 1
-                      :onChange (fn [_]
+                      :on-change (fn [_]
                                   (let
                                     [v (.-value (gdom/getElement "myrange"))]
                                     ;(.log js/console (str "v: " v))
@@ -191,10 +191,32 @@
      [:div (str "Username: ")]
      [:div (str "at: ")]]))
 
+(defn dropbox-unit []
+  (let [{:keys [unit-item-map selected-unit-item]} @(subscribe [:unitoption])]
+    (if (and (some? unit-item-map)
+             (some? selected-unit-item))
+      [:div.col-md-12
+       [:select
+        {:value selected-unit-item
+         :on-change (fn [e]
+                      (let [value (.-value (.-target e))
+                            x (if (= "" value ) nil (keyword value))]
+                        (then [:transient :command-server-change-unit x])))}
+        ;^{:key :select-none} [:option {:value nil} ""]
+        ;^{:key :option1} [:option {:value "SI ab."} "SI metric"]]])
+        (for [item unit-item-map]
+          ^{:key item} [:option {:value (str (name (first (keys item))))} (first (vals item))])]]
+      [:div.col-md-12])))
+
+
 (defn app []
   [:div.col-sm-12.col-md-12
    [:h2 "Welcome to my Precept experiment"]
    [:div.row
+    ;(let [item-map [{:US "US metric"} {:SI "SI Metric"}]]
+    ;  (js/console.log (str "item-map: " (get item-map 0)))
+    [dropbox-unit]]
+   [:div.row {:style {:margin-bottom "5px"}}
     [loginform]
     [usernames]]
     ;[refreshbutton]]

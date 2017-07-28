@@ -1,6 +1,7 @@
 (ns directionalsurvey.core
   (:require [reagent.core :as reagent]
             [directionalsurvey.views :as views]
+            [cognitect.transit :as t]
             [precept.core :refer [start! then]]
             [directionalsurvey.serverevents :as se]
             [directionalsurvey.utils :as utils]
@@ -17,8 +18,12 @@
     (enable-console-print!)
     (println "dev mode")))
 
-(def facts (into []
-                 [(entryuser "")]))
+(def facts [(entryuser "")])
+            ;[:global :unit-item-map (let [w (t/writer :json)]
+            ;                          (t/write w [{:OF "Oil Field metric"} {:SI "SI Metric"}]))]
+            ;[:global :selected-unit-item (let [w (t/writer :json)]
+            ;                               (t/write w :SI))]])
+
 
 (defn startsession []
   (start! {:session app-session :facts facts}))

@@ -66,6 +66,9 @@
   (channel-send! wsid [:db/insert {:data (origtableconfig (utils/init-tableconfig))}])
   (channel-send! wsid [:db/insert {:data (localtableconfig (utils/init-tableconfig))}])
   (channel-send! wsid [:db/insert {:data (globaltableconfig (utils/init-tableconfig))}])
+  (channel-send! wsid [:db/insert {:data [:global :unit-item-map [{:OF "Oil Field metric"} {:SI "SI Metric"}]]}])
+  (channel-send! wsid [:db/insert {:data [:global :selected-unit-item :SI]}])
+
   ;; Send login information
   (let [logininf (db/getusers)
         listactions (db/getactions)]
@@ -86,12 +89,18 @@
       (doseq [fact listactions]
         (channel-send! wsid [:db/insert {:data fact}])))))
 
+(defn unit-change-handler [{:keys [unit]}]
+  (println (str "user wants to change unit to: " unit))
+  (doseq [wsid (:any @connected-uids)]
+    (channel-send! wsid [:db/insert {:data [:global :selected-unit-item unit]}])))
+
 (defn- ws-msg-handler []
   (fn [{:keys [event] :as msg} _]
     (let [[id data :as ev] event]
       (case id
         :db/init (init-handler data)
         :user/set-table-value (settablevalue-handler data)
+        :unit/change (unit-change-handler data)
         (println "Unmatched event: " id " data: " data)))))
 
 (defn ws-message-router []

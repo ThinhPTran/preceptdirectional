@@ -127,7 +127,8 @@
 
 (defn handle-table-actions [tableconfig action]
   (let [colIdx (:col action)]
-    ;(.log js/console "action: " action)
+    (.log js/console "action: " action)
+    (.log js/console "tableconfig" tableconfig)
     (cond
       (= 0 colIdx) (handle-user-change-MD tableconfig action)
       (= 1 colIdx) (handle-user-change-TVD tableconfig action)
